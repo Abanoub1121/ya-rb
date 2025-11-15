@@ -250,34 +250,39 @@
 
     <div class="chibi-carousel">
         <div class="chibis-group">
-            <div class="chibi-item">
-                <div class="speech-bubble" id="speech1"></div>
-                <div class="chibi-model">
-                    <model-viewer 
-                        id="chibiViewer1"
-                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_astronaut-bbYii9RwW1pQDZgwP2kjqZsDx5uU86.glb"
-                        alt="Boba"
-                        camera-controls
-                        touch-action="pan-y"
-                        disable-tap>
-                    </model-viewer>
-                </div>
-                <div class="chibi-name">Boba</div>
-            </div>
-
+            <!-- Reordered models: Lolla on left, Boba in middle, Totta on right -->
             <div class="chibi-item">
                 <div class="speech-bubble" id="speech2"></div>
                 <div class="chibi-model">
                     <model-viewer 
                         id="chibiViewer2"
-                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_dog-AxUCuWdLYW7RPI1IIkcZWVpWWT0LQU.glb"
-                        alt="Lola"
+                        src="/images/chibi-dog.glb"
+                        alt="Lolla"
                         camera-controls
                         touch-action="pan-y"
-                        disable-tap>
+                        disable-tap
+                        auto-rotate
+                        camera-target="0m 0m 0m">
                     </model-viewer>
                 </div>
-                <div class="chibi-name">Lola</div>
+                <div class="chibi-name">Lolla</div>
+            </div>
+
+            <div class="chibi-item">
+                <div class="speech-bubble" id="speech1"></div>
+                <div class="chibi-model">
+                    <model-viewer 
+                        id="chibiViewer1"
+                        src="/images/chibi-astronaut.glb"
+                        alt="Boba"
+                        camera-controls
+                        touch-action="pan-y"
+                        disable-tap
+                        auto-rotate
+                        camera-target="0m 0m 0m">
+                    </model-viewer>
+                </div>
+                <div class="chibi-name">Boba</div>
             </div>
 
             <div class="chibi-item">
@@ -285,14 +290,16 @@
                 <div class="chibi-model">
                     <model-viewer 
                         id="chibiViewer3"
-                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_cat-OmpxA0nX0OgOSgvJCo8vSRVKqqPDbA.glb"
-                        alt="Tota"
+                        src="/images/chibi-cat.glb"
+                        alt="Totta"
                         camera-controls
                         touch-action="pan-y"
-                        disable-tap>
+                        disable-tap
+                        auto-rotate
+                        camera-target="0m 0m 0m">
                     </model-viewer>
                 </div>
-                <div class="chibi-name">Tota</div>
+                <div class="chibi-name">Totta</div>
             </div>
         </div>
     </div>
@@ -373,19 +380,19 @@
                 delay: 5000,
                 elementId: 'speech1'
             },
-            lola: {
+            lolla: {
                 messages: ['haw haw'],
                 delay: 2000,
                 elementId: 'speech2'
             },
-            tota: {
+            totta: {
                 messages: ['meow'],
                 delay: 2000,
                 elementId: 'speech3'
             }
         };
 
-        let messageIndices = { boba: 0, lola: 0, tota: 0 };
+        let messageIndices = { boba: 0, lolla: 0, totta: 0 };
 
         function displayMessage(character) {
             const data = characterData[character];
@@ -451,8 +458,8 @@
         function initCharacters() {
             const viewers = [
                 { id: 'chibiViewer1', char: 'boba' },
-                { id: 'chibiViewer2', char: 'lola' },
-                { id: 'chibiViewer3', char: 'tota' }
+                { id: 'chibiViewer2', char: 'lolla' },
+                { id: 'chibiViewer3', char: 'totta' }
             ];
 
             viewers.forEach(({ id, char }) => {
@@ -463,8 +470,8 @@
             });
 
             displayMessage('boba');
-            displayMessage('lola');
-            displayMessage('tota');
+            displayMessage('lolla');
+            displayMessage('totta');
         }
 
         function generatePhotoGrid() {
