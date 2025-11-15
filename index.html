@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnLimited Memories</title>
+    <script src="https://cdn.jsdelivr.net/npm/@modelviewer/lib@3.1.1/dist/model-viewer.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #93c5fd;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        canvas#starCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 60px 40px 100px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #bfdbfe;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(147, 197, 253, 0.5);
+        }
+
+        .header .love-message {
+            font-size: 1.2rem;
+            color: #7dd3fc;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .photo-card {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(147, 197, 253, 0.3);
+        }
+
+        .photo-card:hover {
+            transform: scale(1.05);
+            border-color: #7dd3fc;
+            box-shadow: 0 0 30px rgba(125, 211, 252, 0.6);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-day {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(10, 14, 39, 0.9);
+            color: #93c5fd;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .chibi-carousel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 550px;
+            height: auto;
+            z-index: 100;
+            border-radius: 12px;
+            overflow: visible;
+            border: 2px solid rgba(147, 197, 253, 0.5);
+            box-shadow: 0 0 40px rgba(125, 211, 252, 0.3);
+            background: rgba(10, 14, 39, 0.9);
+            padding: 20px;
+        }
+
+        .chibis-group {
+            display: flex;
+            gap: 15px;
+            justify-content: space-around;
+            align-items: flex-end;
+        }
+
+        .chibi-item {
+            flex: 1;
+            max-width: 130px;
+            position: relative;
+            text-align: center;
+        }
+
+        .chibi-model {
+            width: 130px;
+            height: 150px;
+            position: relative;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+        }
+
+        .speech-bubble {
+            position: absolute;
+            bottom: 160px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(125, 211, 252, 0.2);
+            border: 2px solid #7dd3fc;
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            color: #93c5fd;
+            white-space: nowrap;
+            animation: pop 0.5s ease-out;
+            pointer-events: none;
+            z-index: 200;
+            min-width: 80px;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #7dd3fc;
+        }
+
+        .chibi-name {
+            color: #bfdbfe;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pop {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .photo-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .photo-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starCanvas"></canvas>
+
+    <div id="galleryView" class="content">
+        <div class="header">
+            <h1>UnLimited Memories</h1>
+            <div class="love-message">
+                I have always Loved You I Love You now I will always Love You
+            </div>
+        </div>
+
+        <div class="photo-grid" id="photoGrid"></div>
+    </div>
+
+    <div id="storyView" style="display: none; padding: 60px 40px 100px;">
+        <div style="max-width: 900px; margin: 0 auto;">
+            <button onclick="backToGallery()" style="margin-bottom: 30px; padding: 10px 20px; background: #7dd3fc; color: #0a0e27; border: none; border-radius: 6px; cursor: pointer;">Back to Gallery</button>
+            
+            <div class="header">
+                <h2 id="storyDayTitle" style="font-size: 2.5rem; margin-bottom: 10px;">Day 1</h2>
+                <div class="love-message" id="savedMessage" style="display: none;">Story saved!</div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #0a0e27 0%, #1a1f4d 100%); border: 2px solid rgba(147, 197, 253, 0.5); border-radius: 12px; padding: 40px; margin-bottom: 30px;">
+                <label style="color: #93c5fd; display: block; margin-bottom: 15px; font-weight: 600;">Your Story for this Day</label>
+                <textarea id="storyText" placeholder="Write your beautiful memory for this day..." style="width: 100%; min-height: 150px; background: #0a0e27; color: #93c5fd; border: 2px solid #7dd3fc; border-radius: 8px; padding: 15px; font-family: inherit; font-size: 1rem;"></textarea>
+                <button onclick="saveStory()" style="margin-top: 20px; padding: 10px 20px; background: #7dd3fc; color: #0a0e27; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Story</button>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #0a0e27 0%, #1a1f4d 100%); border: 2px solid rgba(147, 197, 253, 0.5); border-radius: 12px; padding: 40px;">
+                <h3 style="color: #bfdbfe; margin-bottom: 20px; font-size: 1.3rem;">Photos for this Day</h3>
+                
+                <div style="margin-bottom: 30px;">
+                    <label style="color: #93c5fd; margin-bottom: 10px; display: block; font-weight: 600;">Upload Photo</label>
+                    <input type="file" id="photoUpload" accept="image/*" style="color: #93c5fd; padding: 10px; cursor: pointer; margin-bottom: 10px;">
+                    <button onclick="uploadPhoto()" style="padding: 10px 20px; background: #7dd3fc; color: #0a0e27; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Add Photo</button>
+                </div>
+
+                <div id="photoContainer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHANGE: 3D models now positioned correctly with speech bubbles above them -->
+    <div class="chibi-carousel">
+        <div class="chibis-group">
+            <div class="chibi-item">
+                <div class="speech-bubble" id="speech1"></div>
+                <div class="chibi-model">
+                    <model-viewer 
+                        id="chibiViewer1"
+                        src="/images/chibi-astronaut.glb"
+                        alt="Boba"
+                        camera-controls
+                        touch-action="pan-y">
+                    </model-viewer>
+                </div>
+                <div class="chibi-name">Boba</div>
+            </div>
+
+            <div class="chibi-item">
+                <div class="speech-bubble" id="speech2"></div>
+                <div class="chibi-model">
+                    <model-viewer 
+                        id="chibiViewer2"
+                        src="/images/chibi-dog.glb"
+                        alt="Lola"
+                        camera-controls
+                        touch-action="pan-y">
+                    </model-viewer>
+                </div>
+                <div class="chibi-name">Lola</div>
+            </div>
+
+            <div class="chibi-item">
+                <div class="speech-bubble" id="speech3"></div>
+                <div class="chibi-model">
+                    <model-viewer 
+                        id="chibiViewer3"
+                        src="/images/chibi-cat.glb"
+                        alt="Tota"
+                        camera-controls
+                        touch-action="pan-y">
+                    </model-viewer>
+                </div>
+                <div class="chibi-name">Tota</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createStarfield() {
+            const canvas = document.getElementById('starCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const stars = [];
+            
+            for (let i = 0; i < 300; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5,
+                    opacity: Math.random() * 0.5 + 0.5,
+                    twinkleSpeed: Math.random() * 0.02 + 0.005
+                });
+            }
+
+            let time = 0;
+
+            function animate() {
+                ctx.fillStyle = '#0a0e27';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const gradient = ctx.createRadialGradient(
+                    canvas.width * 0.3, canvas.height * 0.3, 0,
+                    canvas.width * 0.3, canvas.height * 0.3, canvas.width * 0.8
+                );
+                gradient.addColorStop(0, 'rgba(125, 211, 252, 0.05)');
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                stars.forEach(star => {
+                    star.opacity += Math.sin(time * star.twinkleSpeed) * 0.02;
+                    star.opacity = Math.max(0.3, Math.min(1, star.opacity));
+
+                    ctx.fillStyle = `rgba(191, 219, 254, ${star.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.strokeStyle = `rgba(125, 211, 252, ${star.opacity * 0.5})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius + 2, 0, Math.PI * 2);
+                    ctx.stroke();
+                });
+
+                time++;
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+
+        const characterData = {
+            boba: {
+                messages: [
+                    'I love you Tona ❤️❤️',
+                    'I am here with you my love ❤️✨',
+                    'You are mine ok ?! 😉❤️',
+                    'You are what I wish for ❤️❤️',
+                    'I will always be here for you ❤️🫂',
+                    'Eat well ok ? 😠❤️'
+                ],
+                delay: 5000,
+                elementId: 'speech1'
+            },
+            lola: {
+                messages: ['haw haw'],
+                delay: 2000,
+                elementId: 'speech2'
+            },
+            tota: {
+                messages: ['meow'],
+                delay: 2000,
+                elementId: 'speech3'
+            }
+        };
+
+        let messageIndices = { boba: 0, lola: 0, tota: 0 };
+
+        function displayMessage(character) {
+            const data = characterData[character];
+            const messageIndex = messageIndices[character];
+            const element = document.getElementById(data.elementId);
+            
+            if (!element) return;
+            
+            element.textContent = data.messages[messageIndex];
+            element.style.animation = 'none';
+            setTimeout(() => {
+                element.style.animation = 'pop 0.5s ease-out';
+            }, 10);
+
+            messageIndices[character] = (messageIndex + 1) % data.messages.length;
+            setTimeout(() => displayMessage(character), data.delay);
+        }
+
+        function onCharacterClick(character) {
+            if (character === 'boba') {
+                const data = characterData.boba;
+                const element = document.getElementById(data.elementId);
+                const nextIndex = messageIndices.boba;
+                
+                element.textContent = data.messages[nextIndex];
+                element.style.animation = 'none';
+                setTimeout(() => {
+                    element.style.animation = 'pop 0.5s ease-out';
+                }, 10);
+                
+                messageIndices.boba = (nextIndex + 1) % data.messages.length;
+            } else {
+                const heartElement = document.createElement('div');
+                heartElement.textContent = '❤️';
+                heartElement.style.position = 'fixed';
+                heartElement.style.fontSize = '2rem';
+                heartElement.style.pointerEvents = 'none';
+                heartElement.style.zIndex = '1000';
+                
+                const speechBubble = document.getElementById(characterData[character].elementId);
+                const rect = speechBubble.getBoundingClientRect();
+                heartElement.style.left = (rect.left + rect.width / 2) + 'px';
+                heartElement.style.top = (rect.top + rect.height / 2) + 'px';
+                
+                document.body.appendChild(heartElement);
+                
+                let opacity = 1;
+                let yPos = 0;
+                const heartInterval = setInterval(() => {
+                    yPos -= 2;
+                    opacity -= 0.02;
+                    heartElement.style.transform = `translate(-50%, ${yPos}px)`;
+                    heartElement.style.opacity = opacity;
+                    
+                    if (opacity <= 0) {
+                        clearInterval(heartInterval);
+                        heartElement.remove();
+                    }
+                }, 10);
+            }
+        }
+
+        function initCharacters() {
+            document.getElementById('chibiViewer1').addEventListener('click', () => onCharacterClick('boba'));
+            document.getElementById('chibiViewer2').addEventListener('click', () => onCharacterClick('lola'));
+            document.getElementById('chibiViewer3').addEventListener('click', () => onCharacterClick('tota'));
+
+            displayMessage('boba');
+            displayMessage('lola');
+            displayMessage('tota');
+        }
+
+        function openDay(day) {
+            document.getElementById('galleryView').style.display = 'none';
+            document.getElementById('storyView').style.display = 'block';
+            document.getElementById('storyDayTitle').textContent = `Day ${day}`;
+            
+            const saved = localStorage.getItem(`story-day-${day}`);
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('storyText').value = data.story || '';
+                document.getElementById('savedMessage').style.display = 'block';
+            } else {
+                document.getElementById('storyText').value = '';
+                document.getElementById('savedMessage').style.display = 'none';
+            }
+            
+            loadPhotos(day);
+            window.scrollTo(0, 0);
+        }
+
+        function backToGallery() {
+            document.getElementById('galleryView').style.display = 'block';
+            document.getElementById('storyView').style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+
+        let currentDay = 0;
+
+        function saveStory() {
+            const storyText = document.getElementById('storyText').value;
+            const data = {
+                story: storyText,
+                savedAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem(`story-day-${currentDay}`, JSON.stringify(data));
+            
+            const savedMessage = document.getElementById('savedMessage');
+            savedMessage.style.display = 'block';
+            setTimeout(() => {
+                savedMessage.style.display = 'none';
+            }, 2000);
+        }
+
+        function uploadPhoto() {
+            const fileInput = document.getElementById('photoUpload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a photo');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const photos = JSON.parse(localStorage.getItem(`photos-day-${currentDay}`) || '[]');
+                photos.push(e.target.result);
+                localStorage.setItem(`photos-day-${currentDay}`, JSON.stringify(photos));
+                
+                fileInput.value = '';
+                loadPhotos(currentDay);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadPhotos(day) {
+            const photoContainer = document.getElementById('photoContainer');
+            photoContainer.innerHTML = '';
+            
+            const photos = JSON.parse(localStorage.getItem(`photos-day-${day}`) || '[]');
+            
+            photos.forEach((photo, index) => {
+                const photoDiv = document.createElement('div');
+                photoDiv.style.position = 'relative';
+                photoDiv.style.borderRadius = '8px';
+                photoDiv.style.overflow = 'hidden';
+                
+                const img = document.createElement('img');
+                img.src = photo;
+                img.style.width = '100%';
+                img.style.height = '200px';
+                img.style.objectFit = 'cover';
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'X';
+                deleteBtn.style.position = 'absolute';
+                deleteBtn.style.top = '5px';
+                deleteBtn.style.right = '5px';
+                deleteBtn.style.background = 'rgba(239, 68, 68, 0.8)';
+                deleteBtn.style.border = 'none';
+                deleteBtn.style.color = 'white';
+                deleteBtn.style.padding = '5px 10px';
+                deleteBtn.style.borderRadius = '4px';
+                deleteBtn.style.cursor = 'pointer';
+                deleteBtn.style.fontSize = '1rem';
+                
+                deleteBtn.addEventListener('click', () => {
+                    const updatedPhotos = photos.filter((_, i) => i !== index);
+                    localStorage.setItem(`photos-day-${day}`, JSON.stringify(updatedPhotos));
+                    loadPhotos(day);
+                });
+                
+                photoDiv.appendChild(img);
+                photoDiv.appendChild(deleteBtn);
+                photoContainer.appendChild(photoDiv);
+            });
+        }
+
+        function generatePhotoGrid() {
+            const photoGrid = document.getElementById('photoGrid');
+            const realPhotos = [
+                'https://images.unsplash.com/photo-1511379938547-c1f69b13d835?w=400&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1494301891161-7a88fb7ce338?w=400&h=400&fit=crop'
+            ];
+
+            for (let i = 1; i <= 365; i++) {
+                const photoCard = document.createElement('div');
+                photoCard.className = 'photo-card';
+                
+                let imgSrc = realPhotos[i - 1] || `https://api.placeholder.com/400?text=Day%20${i}`;
+                
+                photoCard.innerHTML = `
+                    <img src="${imgSrc}" alt="Day ${i}" onerror="this.src='https://api.placeholder.com/400?text=Day%20${i}'">
+                    <div class="photo-day">Day ${i}</div>
+                `;
+                
+                photoCard.addEventListener('click', () => {
+                    currentDay = i;
+                    openDay(i);
+                });
+                photoGrid.appendChild(photoCard);
+            }
+        }
+
+        createStarfield();
+        generatePhotoGrid();
+        initCharacters();
+    </script>
+</body>
+</html>

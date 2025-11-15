@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Story</title>
+<style>
+body { font-family: Arial; padding: 20px; background:#111; color:white; }
+img { max-width: 80%; display:block; margin-bottom:20px; border-radius:12px; }
+textarea { width: 80%; height: 100px; border-radius:8px; padding:8px; }
+button { padding:10px 15px; margin-top:10px; cursor:pointer; border-radius:6px; background:#ff2d95; color:white; border:none; }
+</style>
+</head>
+<body>
+
+<h1>Write your story</h1>
+<img id="storyPhoto" src="" alt="Photo">
+<textarea id="storyText" placeholder="Write your story here..."></textarea>
+<br>
+<button onclick="saveStory()">Save Story</button>
+
+<script>
+// --- Step 2a: Photo links ---
+// Use the same photo links array as in index.html
+const photos = [
+  "https://drive.google.com/uc?export=view&id=1tQ7Dar4bFJ-0LCO2O-c5os8tB429Bc6P",
+  "YOUR_LINK_2_HERE",
+  "YOUR_LINK_3_HERE",
+  "YOUR_LINK_4_HERE",
+  // … continue until 365 photos
+  "YOUR_LINK_365_HERE"
+];
+
+// --- Step 2b: Read photo ID from URL ---
+const urlParams = new URLSearchParams(window.location.search);
+const id = parseInt(urlParams.get('id')) - 1; // array index
+
+// --- Step 2c: Display the correct photo ---
+document.getElementById('storyPhoto').src = photos[id] || photos[0];
+
+// --- Step 2d: Load saved story if exists ---
+const textarea = document.getElementById('storyText');
+textarea.value = localStorage.getItem('story_'+id) || '';
+
+// --- Step 2e: Save story function ---
+function saveStory(){
+  localStorage.setItem('story_'+id, textarea.value);
+  alert('Story saved!');
+}
+</script>
+
+</body>
+</html>
