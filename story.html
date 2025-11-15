@@ -34,7 +34,7 @@
             position: relative;
             z-index: 10;
             padding: 60px 40px 100px;
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -77,12 +77,30 @@
             animation: fadeIn 0.5s ease-in;
         }
 
+        /* CHANGE: Added side-by-side layout with grid */
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .story-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .photo-column {
+            display: flex;
+            flex-direction: column;
+        }
+
         .story-section {
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f4d 100%);
             border: 2px solid rgba(147, 197, 253, 0.5);
             border-radius: 12px;
             padding: 40px;
-            margin-bottom: 30px;
+            flex: 1;
         }
 
         .story-section label {
@@ -94,7 +112,7 @@
 
         .story-section textarea {
             width: 100%;
-            min-height: 150px;
+            min-height: 300px;
             background: #0a0e27;
             color: #93c5fd;
             border: 2px solid #7dd3fc;
@@ -121,7 +139,7 @@
             background: #bfdbfe;
         }
 
-        .photo-section h3 {
+        .story-section h3 {
             color: #bfdbfe;
             margin-bottom: 20px;
             font-size: 1.3rem;
@@ -136,6 +154,7 @@
             padding: 10px;
             cursor: pointer;
             margin-bottom: 10px;
+            display: block;
         }
 
         .add-photo-button {
@@ -155,8 +174,10 @@
 
         .photo-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-height: 500px;
+            overflow-y: auto;
         }
 
         .photo-item {
@@ -168,7 +189,7 @@
 
         .photo-item img {
             width: 100%;
-            height: 200px;
+            height: 150px;
             object-fit: cover;
         }
 
@@ -224,6 +245,7 @@
             position: relative;
             background: radial-gradient(circle at 30% 30%, rgba(125, 211, 252, 0.1), transparent);
             border-radius: 12px;
+            margin: 0 auto;
         }
 
         model-viewer {
@@ -298,8 +320,8 @@
         }
 
         @media (max-width: 1024px) {
-            .photo-container {
-                grid-template-columns: repeat(2, 1fr);
+            .main-container {
+                grid-template-columns: 1fr;
             }
             .chibi-carousel {
                 width: 500px;
@@ -307,16 +329,15 @@
         }
 
         @media (max-width: 640px) {
-            .photo-container {
-                grid-template-columns: 1fr;
-            }
-
             .header h2 {
                 font-size: 2rem;
             }
             .chibi-carousel {
                 width: 100%;
                 max-width: 400px;
+            }
+            .photo-container {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -325,29 +346,36 @@
     <canvas id="starCanvas"></canvas>
 
     <div class="content">
-        <button class="back-button" onclick="backToGallery()">← Back to Gallery</button>
+        <button class="back-button" onclick="backToGallery()">Back to Gallery</button>
         
         <div class="header">
             <h2 id="storyDayTitle">Day 1</h2>
             <div class="saved-message" id="savedMessage">Story saved!</div>
         </div>
 
-        <div class="story-section">
-            <label>Your Story for this Day</label>
-            <textarea id="storyText" placeholder="Write your beautiful memory for this day..."></textarea>
-            <button class="save-button" onclick="saveStory()">Save Story</button>
-        </div>
-
-        <div class="story-section">
-            <h3>Photos for this Day</h3>
-            
-            <div class="upload-area">
-                <label style="color: #93c5fd; margin-bottom: 10px; display: block; font-weight: 600;">Upload Photo</label>
-                <input type="file" id="photoUpload" accept="image/*">
-                <button class="add-photo-button" onclick="uploadPhoto()">Add Photo</button>
+        <!-- Story and photos side-by-side -->
+        <div class="main-container">
+            <div class="story-column">
+                <div class="story-section">
+                    <label>Your Story for this Day</label>
+                    <textarea id="storyText" placeholder="Write your beautiful memory for this day..."></textarea>
+                    <button class="save-button" onclick="saveStory()">Save Story</button>
+                </div>
             </div>
 
-            <div class="photo-container" id="photoContainer"></div>
+            <div class="photo-column">
+                <div class="story-section">
+                    <h3>Photos for this Day</h3>
+                    
+                    <div class="upload-area">
+                        <label style="color: #93c5fd; margin-bottom: 10px; display: block; font-weight: 600;">Upload Photo</label>
+                        <input type="file" id="photoUpload" accept="image/*">
+                        <button class="add-photo-button" onclick="uploadPhoto()">Add Photo</button>
+                    </div>
+
+                    <div class="photo-container" id="photoContainer"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -358,7 +386,7 @@
                 <div class="chibi-model">
                     <model-viewer 
                         id="chibiViewer1"
-                        src="/images/chibi-astronaut.glb"
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_astronaut-bbYii9RwW1pQDZgwP2kjqZsDx5uU86.glb"
                         alt="Boba"
                         camera-controls
                         touch-action="pan-y"
@@ -373,7 +401,7 @@
                 <div class="chibi-model">
                     <model-viewer 
                         id="chibiViewer2"
-                        src="/images/chibi-dog.glb"
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_dog-AxUCuWdLYW7RPI1IIkcZWVpWWT0LQU.glb"
                         alt="Lola"
                         camera-controls
                         touch-action="pan-y"
@@ -388,7 +416,7 @@
                 <div class="chibi-model">
                     <model-viewer 
                         id="chibiViewer3"
-                        src="/images/chibi-cat.glb"
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_cat-OmpxA0nX0OgOSgvJCo8vSRVKqqPDbA.glb"
                         alt="Tota"
                         camera-controls
                         touch-action="pan-y"
@@ -643,7 +671,6 @@
             });
         }
 
-        // Initialize page
         document.getElementById('storyDayTitle').textContent = `Day ${currentDay}`;
         const saved = localStorage.getItem(`story-day-${currentDay}`);
         if (saved) {
