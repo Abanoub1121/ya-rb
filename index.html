@@ -4,14 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UnLimited Memories</title>
-    <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@r128/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@r128/examples/jsm/"
-      }
-    }
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/@modelviewer/lib@3.1.1/dist/model-viewer.min.js"></script>
     <style>
         * {
@@ -112,67 +104,68 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 100%;
-            max-width: 500px;
-            height: auto;
+            width: 600px;
             z-index: 100;
-            border-radius: 12px;
-            overflow: hidden;
+            border-radius: 16px;
+            overflow: visible;
             border: 2px solid rgba(147, 197, 253, 0.5);
-            box-shadow: 0 0 40px rgba(125, 211, 252, 0.3);
-            background: rgba(10, 14, 39, 0.9);
-            padding: 20px;
+            box-shadow: 0 0 50px rgba(125, 211, 252, 0.4);
+            background: rgba(10, 14, 39, 0.95);
+            padding: 25px;
+            backdrop-filter: blur(10px);
         }
 
         .chibis-group {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 20px;
             justify-content: space-around;
             align-items: flex-end;
         }
 
         .chibi-item {
             flex: 1;
-            max-width: 120px;
             position: relative;
             text-align: center;
         }
 
         .chibi-model {
-            width: 100%;
-            height: 150px;
-            border-radius: 8px;
-            overflow: hidden;
-            background: rgba(125, 211, 252, 0.1);
+            width: 140px;
+            height: 180px;
+            position: relative;
+            background: radial-gradient(circle at 30% 30%, rgba(125, 211, 252, 0.1), transparent);
+            border-radius: 12px;
         }
 
         model-viewer {
-            width: 100%;
-            height: 100%;
-            background: transparent;
+            width: 100% !important;
+            height: 100% !important;
+            background: transparent !important;
+            border-radius: 12px;
         }
 
         .speech-bubble {
-            background: rgba(125, 211, 252, 0.2);
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(125, 211, 252, 0.25);
             border: 2px solid #7dd3fc;
             border-radius: 12px;
-            padding: 12px;
-            margin-top: 8px;
-            font-size: 0.85rem;
+            padding: 8px 14px;
+            font-size: 0.8rem;
             color: #93c5fd;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: pop 0.5s ease-out;
-            position: relative;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 200;
+            min-width: 90px;
+            animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-weight: 500;
         }
 
         .speech-bubble::after {
             content: '';
             position: absolute;
-            bottom: -8px;
+            top: 100%;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
@@ -186,7 +179,7 @@
             color: #bfdbfe;
             font-size: 0.9rem;
             font-weight: 600;
-            margin-top: 8px;
+            margin-top: 12px;
         }
 
         @keyframes fadeIn {
@@ -203,11 +196,14 @@
         @keyframes pop {
             0% {
                 opacity: 0;
-                transform: scale(0.8);
+                transform: translateX(-50%) scale(0.6) translateY(10px);
+            }
+            50% {
+                transform: translateX(-50%) scale(1.1) translateY(-5px);
             }
             100% {
                 opacity: 1;
-                transform: scale(1);
+                transform: translateX(-50%) scale(1) translateY(0);
             }
         }
 
@@ -215,6 +211,9 @@
             .photo-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 20px;
+            }
+            .chibi-carousel {
+                width: 500px;
             }
         }
 
@@ -227,94 +226,72 @@
             .header h1 {
                 font-size: 2rem;
             }
+            .chibi-carousel {
+                width: 100%;
+                max-width: 400px;
+            }
         }
     </style>
 </head>
 <body>
     <canvas id="starCanvas"></canvas>
 
-    <div id="galleryView" class="content">
+    <div class="content">
         <div class="header">
-            <h1>✨ UnLimited Memories ✨</h1>
+            <h1>UnLimited Memories</h1>
             <div class="love-message">
-                I have always Loved You 💙 I Love You now 💙 I will always Love You ❤️
+                I have always Loved You I Love You now I will always Love You
             </div>
         </div>
 
         <div class="photo-grid" id="photoGrid"></div>
     </div>
 
-    <div id="storyView" style="display: none; padding: 60px 40px 100px;">
-        <div style="max-width: 900px; margin: 0 auto;">
-            <button onclick="backToGallery()" style="margin-bottom: 30px; padding: 10px 20px; background: #7dd3fc; color: #0a0e27; border: none; border-radius: 6px; cursor: pointer;">← Back to Gallery</button>
-            
-            <div class="header">
-                <h2 id="storyDayTitle" style="font-size: 2.5rem; margin-bottom: 10px;">Day 1</h2>
-                <div class="love-message" id="savedMessage" style="display: none;">💾 Story saved!</div>
-            </div>
-
-            <div style="background: linear-gradient(135deg, #0a0e27 0%, #1a1f4d 100%); border: 2px solid rgba(147, 197, 253, 0.5); border-radius: 12px; padding: 40px; margin-bottom: 30px;">
-                <label style="color: #93c5fd; display: block; margin-bottom: 15px; font-weight: 600;">Your Story for this Day ✨</label>
-                <textarea id="storyText" placeholder="Write your beautiful memory for this day..." style="width: 100%; min-height: 150px; background: #0a0e27; color: #93c5fd; border: 2px solid #7dd3fc; border-radius: 8px; padding: 15px; font-family: inherit; font-size: 1rem;"></textarea>
-                <button onclick="saveStory()" style="margin-top: 20px; padding: 10px 20px; background: #7dd3fc; color: #0a0e27; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Story 💾</button>
-            </div>
-
-            <div style="background: linear-gradient(135deg, #0a0e27 0%, #1a1f4d 100%); border: 2px solid rgba(147, 197, 253, 0.5); border-radius: 12px; padding: 40px;">
-                <h3 style="color: #bfdbfe; margin-bottom: 20px; font-size: 1.3rem;">Photos for this Day 📸</h3>
-                
-                <div style="margin-bottom: 30px;">
-                    <label style="color: #93c5fd; margin-bottom: 10px; display: block; font-weight: 600;">Upload Photo</label>
-                    <input type="file" id="photoUpload" accept="image/*" style="color: #93c5fd; padding: 10px; cursor: pointer; margin-bottom: 10px;">
-                    <button onclick="uploadPhoto()" style="padding: 10px 20px; background: #7dd3fc; color: #0a0e27; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Add Photo ➕</button>
-                </div>
-
-                <div id="photoContainer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;"></div>
-            </div>
-        </div>
-    </div>
-
     <div class="chibi-carousel">
         <div class="chibis-group">
             <div class="chibi-item">
+                <div class="speech-bubble" id="speech1"></div>
                 <div class="chibi-model">
                     <model-viewer 
                         id="chibiViewer1"
-                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_astronaut-bbYii9RwW1pQDZgwP2kjqZsDx5uU86.glb"
+                        src="/images/chibi-astronaut.glb"
                         alt="Boba"
-                        auto-rotate
-                        camera-controls>
+                        camera-controls
+                        touch-action="pan-y"
+                        disable-tap>
                     </model-viewer>
                 </div>
-                <div class="speech-bubble" id="speech1">I love you</div>
-                <div class="chibi-name">Boba 👨‍🚀</div>
+                <div class="chibi-name">Boba</div>
             </div>
 
             <div class="chibi-item">
+                <div class="speech-bubble" id="speech2"></div>
                 <div class="chibi-model">
                     <model-viewer 
                         id="chibiViewer2"
-                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_dog-AxUCuWdLYW7RPI1IIkcZWVpWWT0LQU.glb"
+                        src="/images/chibi-dog.glb"
                         alt="Lola"
-                        auto-rotate
-                        camera-controls>
+                        camera-controls
+                        touch-action="pan-y"
+                        disable-tap>
                     </model-viewer>
                 </div>
-                <div class="speech-bubble" id="speech2">haw haw</div>
-                <div class="chibi-name">Lola 🐕</div>
+                <div class="chibi-name">Lola</div>
             </div>
 
             <div class="chibi-item">
+                <div class="speech-bubble" id="speech3"></div>
                 <div class="chibi-model">
                     <model-viewer 
                         id="chibiViewer3"
-                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_cat-OmpxA0nX0OgOSgvJCo8vSRVKqqPDbA.glb"
+                        src="/images/chibi-cat.glb"
                         alt="Tota"
-                        auto-rotate
-                        camera-controls>
+                        camera-controls
+                        touch-action="pan-y"
+                        disable-tap>
                     </model-viewer>
                 </div>
-                <div class="speech-bubble" id="speech3">meow</div>
-                <div class="chibi-name">Tota 🐱</div>
+                <div class="chibi-name">Tota</div>
             </div>
         </div>
     </div>
@@ -396,12 +373,12 @@
                 elementId: 'speech1'
             },
             lola: {
-                messages: ['haw haw 🐕'],
+                messages: ['haw haw'],
                 delay: 2000,
                 elementId: 'speech2'
             },
             tota: {
-                messages: ['meow 🐱'],
+                messages: ['meow'],
                 delay: 2000,
                 elementId: 'speech3'
             }
@@ -419,7 +396,7 @@
             element.textContent = data.messages[messageIndex];
             element.style.animation = 'none';
             setTimeout(() => {
-                element.style.animation = 'pop 0.5s ease-out';
+                element.style.animation = 'pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
             }, 10);
 
             messageIndices[character] = (messageIndex + 1) % data.messages.length;
@@ -435,7 +412,7 @@
                 element.textContent = data.messages[nextIndex];
                 element.style.animation = 'none';
                 setTimeout(() => {
-                    element.style.animation = 'pop 0.5s ease-out';
+                    element.style.animation = 'pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
                 }, 10);
                 
                 messageIndices.boba = (nextIndex + 1) % data.messages.length;
@@ -443,7 +420,7 @@
                 const heartElement = document.createElement('div');
                 heartElement.textContent = '❤️';
                 heartElement.style.position = 'fixed';
-                heartElement.style.fontSize = '2rem';
+                heartElement.style.fontSize = '2.5rem';
                 heartElement.style.pointerEvents = 'none';
                 heartElement.style.zIndex = '1000';
                 
@@ -457,8 +434,8 @@
                 let opacity = 1;
                 let yPos = 0;
                 const heartInterval = setInterval(() => {
-                    yPos -= 2;
-                    opacity -= 0.02;
+                    yPos -= 3;
+                    opacity -= 0.03;
                     heartElement.style.transform = `translate(-50%, ${yPos}px)`;
                     heartElement.style.opacity = opacity;
                     
@@ -466,123 +443,27 @@
                         clearInterval(heartInterval);
                         heartElement.remove();
                     }
-                }, 10);
+                }, 15);
             }
         }
 
         function initCharacters() {
-            document.getElementById('chibiViewer1').addEventListener('click', () => onCharacterClick('boba'));
-            document.getElementById('chibiViewer2').addEventListener('click', () => onCharacterClick('lola'));
-            document.getElementById('chibiViewer3').addEventListener('click', () => onCharacterClick('tota'));
+            const viewers = [
+                { id: 'chibiViewer1', char: 'boba' },
+                { id: 'chibiViewer2', char: 'lola' },
+                { id: 'chibiViewer3', char: 'tota' }
+            ];
+
+            viewers.forEach(({ id, char }) => {
+                const viewer = document.getElementById(id);
+                if (viewer) {
+                    viewer.addEventListener('click', () => onCharacterClick(char));
+                }
+            });
 
             displayMessage('boba');
             displayMessage('lola');
             displayMessage('tota');
-        }
-
-        function openDay(day) {
-            document.getElementById('galleryView').style.display = 'none';
-            document.getElementById('storyView').style.display = 'block';
-            document.getElementById('storyDayTitle').textContent = `Day ${day}`;
-            
-            const saved = localStorage.getItem(`story-day-${day}`);
-            if (saved) {
-                const data = JSON.parse(saved);
-                document.getElementById('storyText').value = data.story || '';
-                document.getElementById('savedMessage').style.display = 'block';
-            } else {
-                document.getElementById('storyText').value = '';
-                document.getElementById('savedMessage').style.display = 'none';
-            }
-            
-            loadPhotos(day);
-            window.scrollTo(0, 0);
-        }
-
-        function backToGallery() {
-            document.getElementById('galleryView').style.display = 'block';
-            document.getElementById('storyView').style.display = 'none';
-            window.scrollTo(0, 0);
-        }
-
-        function saveStory() {
-            const storyText = document.getElementById('storyText').value;
-            const data = {
-                story: storyText,
-                savedAt: new Date().toISOString()
-            };
-            
-            localStorage.setItem(`story-day-${currentDay}`, JSON.stringify(data));
-            
-            const savedMessage = document.getElementById('savedMessage');
-            savedMessage.style.display = 'block';
-            setTimeout(() => {
-                savedMessage.style.display = 'none';
-            }, 2000);
-        }
-
-        function uploadPhoto() {
-            const fileInput = document.getElementById('photoUpload');
-            const file = fileInput.files[0];
-            
-            if (!file) {
-                alert('Please select a photo');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const photos = JSON.parse(localStorage.getItem(`photos-day-${currentDay}`) || '[]');
-                photos.push(e.target.result);
-                localStorage.setItem(`photos-day-${currentDay}`, JSON.stringify(photos));
-                
-                fileInput.value = '';
-                loadPhotos(currentDay);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function loadPhotos(day) {
-            const photoContainer = document.getElementById('photoContainer');
-            photoContainer.innerHTML = '';
-            
-            const photos = JSON.parse(localStorage.getItem(`photos-day-${day}`) || '[]');
-            
-            photos.forEach((photo, index) => {
-                const photoDiv = document.createElement('div');
-                photoDiv.style.position = 'relative';
-                photoDiv.style.borderRadius = '8px';
-                photoDiv.style.overflow = 'hidden';
-                
-                const img = document.createElement('img');
-                img.src = photo;
-                img.style.width = '100%';
-                img.style.height = '200px';
-                img.style.objectFit = 'cover';
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = '✕';
-                deleteBtn.style.position = 'absolute';
-                deleteBtn.style.top = '5px';
-                deleteBtn.style.right = '5px';
-                deleteBtn.style.background = 'rgba(239, 68, 68, 0.8)';
-                deleteBtn.style.border = 'none';
-                deleteBtn.style.color = 'white';
-                deleteBtn.style.padding = '5px 10px';
-                deleteBtn.style.borderRadius = '4px';
-                deleteBtn.style.cursor = 'pointer';
-                deleteBtn.style.fontSize = '1rem';
-                
-                deleteBtn.addEventListener('click', () => {
-                    const updatedPhotos = photos.filter((_, i) => i !== index);
-                    localStorage.setItem(`photos-day-${day}`, JSON.stringify(updatedPhotos));
-                    loadPhotos(day);
-                });
-                
-                photoDiv.appendChild(img);
-                photoDiv.appendChild(deleteBtn);
-                photoContainer.appendChild(photoDiv);
-            });
         }
 
         function generatePhotoGrid() {
@@ -603,12 +484,12 @@
                     <div class="photo-day">Day ${i}</div>
                 `;
                 
-                photoCard.addEventListener('click', () => openDay(i));
+                photoCard.addEventListener('click', () => {
+                    window.location.href = `story.html?day=${i}`;
+                });
                 photoGrid.appendChild(photoCard);
             }
         }
-
-        let currentDay = 0;
 
         createStarfield();
         generatePhotoGrid();
