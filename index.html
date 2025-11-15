@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chibi Characters</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "@google/model-viewer": "https://cdn.jsdelivr.net/npm/@google/model-viewer@4.0.0/dist/model-viewer.min.js"
+        }
+    }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .gallery {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .chibi-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .speech-bubble {
+            min-height: 60px;
+            min-width: 150px;
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid white;
+        }
+
+        .chibi-model {
+            width: 250px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chibi-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                gap: 20px;
+            }
+
+            .chibi-model {
+                width: 180px;
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="gallery">
+            <!-- LEFT: Lolla (dog) -->
+            <div class="chibi-item">
+                <div class="speech-bubble" id="speech-lolla"></div>
+                <div class="chibi-model">
+                    <model-viewer 
+                        id="viewer-lolla"
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_dog-YTuvMjBfpqnI1Z3DcyJKmaiEvxLSPc.glb"
+                        alt="Lolla"
+                        camera-controls
+                        touch-action="pan-y"
+                        disable-tap
+                        auto-rotate
+                        camera-target="0m 0m 0m"
+                        exposure="1">
+                    </model-viewer>
+                </div>
+                <div class="chibi-name">Lolla</div>
+            </div>
+
+            <!-- MIDDLE: Boba (astronaut) -->
+            <div class="chibi-item">
+                <div class="speech-bubble" id="speech-boba"></div>
+                <div class="chibi-model">
+                    <model-viewer 
+                        id="viewer-boba"
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_astronaut-9WJK31rZw2LAcJq4Rw4BJnPIIFzvnO.glb"
+                        alt="Boba"
+                        camera-controls
+                        touch-action="pan-y"
+                        disable-tap
+                        auto-rotate
+                        camera-target="0m 0m 0m"
+                        exposure="1">
+                    </model-viewer>
+                </div>
+                <div class="chibi-name">Boba</div>
+            </div>
+
+            <!-- RIGHT: Totta (cat) -->
+            <div class="chibi-item">
+                <div class="speech-bubble" id="speech-totta"></div>
+                <div class="chibi-model">
+                    <model-viewer 
+                        id="viewer-totta"
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chibi_cat-I3KyHpcoNEtYLqhgrU9hOntt4PPZOS.glb"
+                        alt="Totta"
+                        camera-controls
+                        touch-action="pan-y"
+                        disable-tap
+                        auto-rotate
+                        camera-target="0m 0m 0m"
+                        exposure="1">
+                    </model-viewer>
+                </div>
+                <div class="chibi-name">Totta</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as ModelViewerElement from "@google/model-viewer";
+
+        const characters = {
+            lolla: {
+                messages: [
+                    "Hey there! I'm Lolla!",
+                    "Woof woof! 🐕",
+                    "Ready for adventure?"
+                ]
+            },
+            boba: {
+                messages: [
+                    "Hello! I'm Boba!",
+                    "I'm an astronaut! 🚀",
+                    "Space is amazing!"
+                ]
+            },
+            totta: {
+                messages: [
+                    "Meow! I'm Totta!",
+                    "Purr purr 🐱",
+                    "Let's have fun!"
+                ]
+            }
+        };
+
+        let messageIndex = 0;
+
+        document.getElementById('speech-lolla').addEventListener('click', () => {
+            updateMessage('lolla', 'speech-lolla');
+        });
+
+        document.getElementById('speech-boba').addEventListener('click', () => {
+            updateMessage('boba', 'speech-boba');
+        });
+
+        document.getElementById('speech-totta').addEventListener('click', () => {
+            updateMessage('totta', 'speech-totta');
+        });
+
+        function updateMessage(character, bubbleId) {
+            const bubble = document.getElementById(bubbleId);
+            const messages = characters[character].messages;
+            bubble.textContent = messages[messageIndex % messages.length];
+            messageIndex++;
+        }
+
+        // Initialize with first messages
+        document.getElementById('speech-lolla').textContent = characters.lolla.messages[0];
+        document.getElementById('speech-boba').textContent = characters.boba.messages[0];
+        document.getElementById('speech-totta').textContent = characters.totta.messages[0];
+    </script>
+</body>
+</html>
